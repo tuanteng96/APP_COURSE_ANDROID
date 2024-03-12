@@ -3,7 +3,9 @@ package vn.cser21;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -19,6 +21,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -39,6 +43,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -57,8 +62,11 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -108,6 +116,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private Result resultLocation;
 
     private FusedLocationProviderClient fusedLocationClient;
+    
+
 
     private int resultKeyboardHeight;
 
@@ -1101,5 +1111,135 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     }
 
+    public void shareImages(List<String> images, String text){
+        new Thread(new DownloadImagesRunnable(images,text,DownloadType.share)).start();
+    }
+
+    public void saveImages(List<String> images){
+        new Thread(new DownloadImagesRunnable(images,"",DownloadType.save)).start();
+        showDefaultDialog(getApplicationContext(),"Success","OK");
+    }
+
+
+    private Bitmap downloadImage(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream inputStream = connection.getInputStream();
+            return BitmapFactory.decodeStream(inputStream);
+        } catch (Exception e) {
+            Log.e("Error", "Failed to download image: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private void shareImgs(List<Bitmap> images, String text) {
+        ArrayList<Uri> uris = new ArrayList<>();
+        for (Bitmap image : images) {
+            // Lưu hình ảnh vào bộ nhớ tạm để chia sẻ
+            File file = saveImageToExternalStorage(image);
+            if (file != null) {
+                uris.add(FileProvider.getUriForFile(this, getApplicationContext().getPackageName() +".provider", file));
+            }
+        }
+        Log.e("FILES: ", uris.toString());
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+        shareIntent.setType("image/*");
+        shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, text);
+        this.startActivity(Intent.createChooser(shareIntent, "Share"));
+    }
+
+    private File saveImageToExternalStorage(Bitmap image) {
+        File directory = new File(getCacheDir(), "images");
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+        File file = new File(directory, "image_" + System.currentTimeMillis() + ".jpg");
+        try {
+            FileOutputStream outputStream = new FileOutputStream(file);
+            image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            outputStream.flush();
+            outputStream.close();
+            return file;
+        } catch (Exception e) {
+            Log.e("Error", "Failed to save image: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private void saveImagesToGallery(List<Bitmap> images) {
+        for (Bitmap image : images) {
+            saveImageToGallery(image);
+        }
+
+    }
+
+    private void saveImageToGallery(Bitmap image) {
+        // Lưu hình ảnh vào thư mục ảnh của thiết bị
+        String savedImagePath = MediaStore.Images.Media.insertImage(
+                getContentResolver(),
+                image,
+                "Image_" + System.currentTimeMillis(),
+                "Image downloaded from network"
+        );
+        Log.d("SUCCESS", "Image saved to: " + savedImagePath);
+
+    }
+
+
+    private void showDefaultDialog(Context context,String title, String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.show();
+    }
+    private class DownloadImagesRunnable implements Runnable {
+        private List<String> imageUrls;
+        private String text;
+        private DownloadType type;
+
+        public DownloadImagesRunnable(List<String> imageUrls, String text ,DownloadType type) {
+            this.imageUrls = imageUrls;
+            this.type = type;
+            this.text = text;
+        }
+
+        @Override
+        public void run() {
+             List<Bitmap> images = new ArrayList<>();
+            for (String url : imageUrls) {
+                try {
+                    // Tải xuống hình ảnh từ URL
+                    Bitmap image = downloadImage(url);
+                    if (image != null) {
+                        synchronized (images) {
+                            images.add(image);
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e("Error", "Failed to download image: " + e.getMessage());
+                }
+            }
+            if(type == DownloadType.share){
+                shareImgs(images,text);
+            } else if (type == DownloadType.save) {
+                saveImagesToGallery(images);
+            }
+
+        }
+
+    }
 
 }
+
+enum DownloadType { share, save }

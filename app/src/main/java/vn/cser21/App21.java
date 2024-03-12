@@ -15,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.os.VibrationEffect;
@@ -22,6 +23,7 @@ import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.app.Activity;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,6 +55,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -277,15 +281,43 @@ public class App21 {
 
     void SHARE_SOCIAL(final Result result) {
         Result rs = result.copy();
-        rs.success = true;
+        rs.success = false;
         Log.e("Param", rs.params);
+        try {
+            JSONObject jsonObject = new JSONObject(rs.params);
+            JSONArray jsonArray =  jsonObject.getJSONArray("Images");
+            List<String> images =new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                String value = jsonArray.getString(i);
+                images.add(value);
+            }
+            String text = jsonObject.getString("Content");
+            Log.e("Images", images.toString());
+            MainActivity m = (MainActivity) mContext;
+            m.shareImages(images,text);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
         App21Result(rs);
     }
 
     void DOWNLOAD_FILES(final Result result) {
         Result rs = result.copy();
-        rs.success = true;
+        rs.success = false;
         Log.e("Param", rs.params);
+        try {
+            JSONArray jsonArray = new JSONArray(rs.params);
+            List<String> images =new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                String value = jsonArray.getString(i);
+                images.add(value);
+            }
+            Log.e("Images", images.toString());
+            MainActivity m = (MainActivity) mContext;
+            m.saveImages(images);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
         App21Result(rs);
     }
 
