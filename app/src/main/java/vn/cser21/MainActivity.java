@@ -489,14 +489,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         html = html.replace("<body>", "<body><script> var ANDROID_EXTRAS =" + jsonExtras + "; document.documentElement.style.setProperty('--f7-safe-area-top', '" + getStatusBarHeight() + "px'); document.documentElement.style.setProperty('--f7-safe-area-bottom', '" + getNavigationBarHeight() + "px')</script>");
 
         //DEV Remove
-        //wv.loadDataWithBaseURL(domain, html + "", "text/html", "utf-8", "");
+        wv.loadDataWithBaseURL(domain, html + "", "text/html", "utf-8", "");
         //DEV Remove
 
         //DEV Open
         // Android phải chạy qua Ngrok, Không thể chạy qua Local
 
-        wv.loadUrl("https://0b75-42-113-60-107.ngrok-free.app/");
-        wv.setVisibility(View.VISIBLE);
+        //wv.loadUrl("https://0b75-42-113-60-107.ngrok-free.app/");
+        //wv.setVisibility(View.VISIBLE);
 
         //DEV Open
 
