@@ -20,6 +20,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -1112,12 +1113,16 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     public void shareImages(List<String> images, String text){
-        new Thread(new DownloadImagesRunnable(images,text,DownloadType.share)).start();
+        new Thread(new DownloadImagesRunnable(images, text, DownloadType.share, new DownloadImagesCallback() {
+            @Override
+            public void onSuccess() {
+                //
+            }
+        })).start();
     }
 
-    public void saveImages(List<String> images){
-        new Thread(new DownloadImagesRunnable(images,"",DownloadType.save)).start();
-        showDefaultDialog(getApplicationContext(),"Success","OK");
+    public void saveImages(List<String> images,DownloadImagesCallback callback){
+        new Thread(new DownloadImagesRunnable(images,"",DownloadType.save, callback )).start();
     }
 
 
@@ -1135,7 +1140,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
     }
 
-    private void shareImgs(List<Bitmap> images, String text) {
+    private void shareImgs(List<Bitmap> images, String text, DownloadImagesCallback callback) {
         ArrayList<Uri> uris = new ArrayList<>();
         for (Bitmap image : images) {
             // Lưu hình ảnh vào bộ nhớ tạm để chia sẻ
@@ -1151,6 +1156,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
         shareIntent.putExtra(Intent.EXTRA_TEXT, text);
         this.startActivity(Intent.createChooser(shareIntent, "Share"));
+        callback.onSuccess();
     }
 
     private File saveImageToExternalStorage(Bitmap image) {
@@ -1171,10 +1177,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
     }
 
-    private void saveImagesToGallery(List<Bitmap> images) {
+    private void saveImagesToGallery(List<Bitmap> images, DownloadImagesCallback callback) {
         for (Bitmap image : images) {
             saveImageToGallery(image);
         }
+        callback.onSuccess();
 
     }
 
@@ -1207,11 +1214,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         private List<String> imageUrls;
         private String text;
         private DownloadType type;
+        private DownloadImagesCallback callback;
 
-        public DownloadImagesRunnable(List<String> imageUrls, String text ,DownloadType type) {
+        public DownloadImagesRunnable(List<String> imageUrls, String text ,DownloadType type, DownloadImagesCallback callback) {
             this.imageUrls = imageUrls;
             this.type = type;
             this.text = text;
+            this.callback = callback;
         }
 
         @Override
@@ -1231,15 +1240,20 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 }
             }
             if(type == DownloadType.share){
-                shareImgs(images,text);
+                shareImgs(images,text,callback);
             } else if (type == DownloadType.save) {
-                saveImagesToGallery(images);
+                saveImagesToGallery(images,callback);
             }
 
         }
 
     }
 
+    public interface DownloadImagesCallback {
+        void onSuccess();
+    }
+
 }
 
 enum DownloadType { share, save }
+

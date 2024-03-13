@@ -294,7 +294,7 @@ public class App21 {
             String text = jsonObject.getString("Content");
             Log.e("Images", images.toString());
             MainActivity m = (MainActivity) mContext;
-            m.shareImages(images,text);
+            m.shareImages(images, text);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
@@ -314,11 +314,19 @@ public class App21 {
             }
             Log.e("Images", images.toString());
             MainActivity m = (MainActivity) mContext;
-            m.saveImages(images);
+            m.saveImages(images, new MainActivity.DownloadImagesCallback(){
+                @Override
+                public void onSuccess() {
+                    rs.success = true;
+                    rs.params = "";
+                    rs.data = "Save image successfully";
+                    App21Result(rs);
+                }
+            });
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-        App21Result(rs);
+       // App21Result(rs);
     }
 
     void NAVIGATION_COLOR(final Result result) {
