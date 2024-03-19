@@ -332,6 +332,14 @@ public class App21 {
     void NAVIGATION_COLOR(final Result result) {
         Result rs = result.copy();
         rs.success = true;
+        rs.data = "";
+        Log.e("Param", rs.params);
+        App21Result(rs);
+    }
+
+    void GET_FILE_PATH(final Result result) {
+        Result rs = result.copy();
+        rs.success = true;
         Log.e("Param", rs.params);
 
         MainActivity m = (MainActivity) mContext;
