@@ -337,13 +337,53 @@ public class App21 {
         App21Result(rs);
     }
 
-    void GET_FILE_PATH(final Result result) {
+    void GET_FILES_LOCAL(final Result result) {
+        Result rs = result.copy();
+        rs.success = true;
+        Log.e("Param", rs.params);  // params sẽ là 1 mảng các tên file ở local nhé a
+        App21Result(rs);
+    }
+
+    void GET_FILES_PATH(final Result result) {
         Result rs = result.copy();
         rs.success = true;
         Log.e("Param", rs.params);
+        App21Result(rs);
+    }
 
-        MainActivity m = (MainActivity) mContext;
-        m.changeNavigationColor(rs.params);
+    void DOWNLOAD_ZIP_SERVER(final Result result) {
+        Result rs = result.copy();
+        rs.success = true;
+        Log.e("Param", rs.params); // params sẽ là 1 mảng các file zip từ server cần download và giải nén
+        App21Result(rs);
+    }
+
+    void GET_JSON_LOCAL(final Result result) {
+        Result rs = result.copy();
+        rs.success = true;
+        Log.e("Param", rs.params); // params sẽ là 1 mảng các đường dẫn file json
+        App21Result(rs);
+    }
+
+    void DELETE_ALL_LOCAL(final Result result) {
+        Result rs = result.copy();
+        rs.success = true;
+        Log.e("Param", rs.params);
+        App21Result(rs);
+    }
+
+    void SAVE_FILES_LOCAL(final Result result) {
+        Result rs = result.copy();
+        rs.success = true;
+        Log.e("Param", rs.params); // params sẽ là 1 mảng các đường dẫn file cần lưu
+        App21Result(rs);
+    }
+
+    void INIT_UNZIP_LOCAL(final Result result) {
+        Result rs = result.copy();
+        rs.success = true;
+        Log.e("Param", rs.params); // params sẽ là đường dẫn file zip cần giải nén
+        App21Result(rs);
     }
 
     void SET_BADGE(final Result result) {
