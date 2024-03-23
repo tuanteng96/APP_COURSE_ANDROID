@@ -339,9 +339,30 @@ public class App21 {
 
     void GET_FILES_LOCAL(final Result result) {
         Result rs = result.copy();
-        rs.success = true;
+
+        try {
+            JSONArray jsonArray = new JSONArray(rs.params);
+            List<String> files =new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                String value = jsonArray.getString(i);
+                files.add(value);
+            }
+            final DataCacheManager dataCacheManager = new DataCacheManager(mContext);
+           final List<String> urls = dataCacheManager.getFileFromUnZipedFolder(files);
+           rs.success = true;
+//            Gson gson = new Gson();
+//            final String data = gson.toJson(urls);
+            rs.data = urls;
+           Log.d("dsd",urls.toString());
+           App21Result(rs);
+        } catch (JSONException e) {
+            rs.success = false;
+            rs.data = "Error";
+            App21Result(rs);
+            throw new RuntimeException(e);
+        }
         Log.e("Param", rs.params);  // params sẽ là 1 mảng các tên file ở local nhé a
-        App21Result(rs);
+
     }
 
     void GET_FILES_PATH(final Result result) {
@@ -354,6 +375,36 @@ public class App21 {
     void DOWNLOAD_ZIP_SERVER(final Result result) {
         Result rs = result.copy();
         rs.success = true;
+        try {
+            JSONArray jsonArray = new JSONArray(rs.params);
+            List<String> files =new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                String value = jsonArray.getString(i);
+                files.add(value);
+            }
+            final DataCacheManager dataCacheManager = new DataCacheManager(mContext);
+            dataCacheManager.downloadListFileAndUnZip(files, new DataCacheManager.DataCacheManagerCallback() {
+                @Override
+                public void onSuccess(String data) {
+
+                }
+
+                @Override
+                public void onError(String data) {
+
+                }
+
+                @Override
+                public void onCompleted() {
+                    rs.success = true;
+                    rs.data = "Success";
+                    App21Result(rs);
+                }
+            });
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
         Log.e("Param", rs.params); // params sẽ là 1 mảng các file zip từ server cần download và giải nén
         App21Result(rs);
     }
@@ -361,13 +412,36 @@ public class App21 {
     void GET_JSON_LOCAL(final Result result) {
         Result rs = result.copy();
         rs.success = true;
+        try {
+            JSONArray jsonArray = new JSONArray(rs.params);
+            List<String> files =new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                String value = jsonArray.getString(i);
+                files.add(value);
+            }
+            final DataCacheManager dataCacheManager = new DataCacheManager(mContext);
+            final List<String> datas = dataCacheManager.readDataJSONFromUnZippedFolder(files);
+            rs.success = true;
+//            Gson gson = new Gson();
+//            final String data = gson.toJson(urls);
+            rs.data = datas;
+            Log.d("dsd",datas.toString());
+            App21Result(rs);
+        } catch (JSONException e) {
+            rs.success = false;
+            rs.data = "Error";
+            App21Result(rs);
+            throw new RuntimeException(e);
+        }
         Log.e("Param", rs.params); // params sẽ là 1 mảng các đường dẫn file json
-        App21Result(rs);
+
     }
 
     void DELETE_ALL_LOCAL(final Result result) {
         Result rs = result.copy();
         rs.success = true;
+        final DataCacheManager dataCacheManager = new DataCacheManager(mContext);
+        dataCacheManager.deleteAll();
         Log.e("Param", rs.params);
         App21Result(rs);
     }
@@ -382,8 +456,28 @@ public class App21 {
     void INIT_UNZIP_LOCAL(final Result result) {
         Result rs = result.copy();
         rs.success = true;
+        final DataCacheManager dataCacheManager = new DataCacheManager(mContext);
+        dataCacheManager.initialUnzip(rs.params, new DataCacheManager.DataCacheManagerCallback() {
+            @Override
+            public void onSuccess(String data) {
+                rs.success = true;
+                rs.data = "Success";
+                App21Result(rs);
+            }
+
+            @Override
+            public void onError(String data) {
+                rs.success = false;
+                rs.data = "Error";
+                App21Result(rs);
+            }
+
+            @Override
+            public void onCompleted() {
+
+            }
+        });
         Log.e("Param", rs.params); // params sẽ là đường dẫn file zip cần giải nén
-        App21Result(rs);
     }
 
     void SET_BADGE(final Result result) {
