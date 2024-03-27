@@ -90,31 +90,7 @@ public class App21 {
 
             String s = gson.toJson(result);
             s = "BASE64:" + DownloadFilesTask.strBase64(s); //Convert to 64 de trach ky tu dc biet
-            String script = "App21Result('" + s + "')";
-            // wv.evaluateJavascript(script, null);
-
-            MainActivity m = (MainActivity) mContext;
-            m.evalJs(script);
-
-
-        } catch (Throwable tx) {
-            Log.wtf("e", "loi", tx);
-        }
-    }
-    public void App21ResultFullData(Result result) {
-
-        try {
-           /* JSONObject json = new JSONObject();
-            json.put("success", result.success);
-            json.put("error", result.error);
-            json.put("data", result.data);
-            json.put("sub_cmd_id", result.sub_cmd_id);
-            json.put("sub_cmd", result.sub_cmd);*/
-
-            Gson gson = new Gson();
-
-            String s = gson.toJson(result);
-            s = "BASE64:" + DownloadFilesTask.strBase64Default(s); //Convert to 64 de trach ky tu dc biet
+//            logLargeString(s);
             String script = "App21Result('" + s + "')";
             // wv.evaluateJavascript(script, null);
 
@@ -127,6 +103,14 @@ public class App21 {
         }
     }
 
+    private void logLargeString(String content) {
+        if (content.length() > 3000) {
+            Log.d("mi", content.substring(0, 3000));
+            logLargeString(content.substring(3000));
+        } else {
+            Log.d("mi", content);
+        }
+    }
     /**
      * @param json {sub_cmd, params, sub_cmd_id}
      */
@@ -448,7 +432,7 @@ public class App21 {
             rs.success = true;
             rs.data = datas;
             Log.d("dsd",datas.toString());
-            App21ResultFullData(rs);
+            App21Result(rs);
         } catch (JSONException e) {
             rs.success = false;
             rs.data = "Error";

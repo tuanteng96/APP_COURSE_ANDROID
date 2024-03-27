@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -21,6 +22,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -224,15 +226,6 @@ public class DownloadFilesTask extends AsyncTask<String, String, String> {
         try{
             byte[] data = input.getBytes("UTF-8");
             return android.util.Base64.encodeToString(data, android.util.Base64.NO_WRAP);
-            //return  Base64.getUrlEncoder().encodeToString(data);
-        }catch (Exception ex){
-            return "";
-        }
-    }
-    public static String strBase64Default(String input){
-        try{
-            byte[] data = input.getBytes("UTF-8");
-            return android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT);
             //return  Base64.getUrlEncoder().encodeToString(data);
         }catch (Exception ex){
             return "";
