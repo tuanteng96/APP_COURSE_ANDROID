@@ -163,7 +163,7 @@ public class DataCacheManager {
         File documentsDirectory = getDocumentDirectory();
         for (String image : images) {
             if (checkExist(image)) {
-                fileList.add(new File(documentsDirectory, image).getAbsolutePath());
+                fileList.add("file://"+(new File(documentsDirectory, image).getAbsolutePath()));
             } else {
                 fileList.add(null);
             }
@@ -211,3 +211,5 @@ public class DataCacheManager {
     }
 
 }
+
+
