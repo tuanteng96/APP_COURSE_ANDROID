@@ -229,6 +229,15 @@ public class DownloadFilesTask extends AsyncTask<String, String, String> {
             return "";
         }
     }
+    public static String strBase64Default(String input){
+        try{
+            byte[] data = input.getBytes("UTF-8");
+            return android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT);
+            //return  Base64.getUrlEncoder().encodeToString(data);
+        }catch (Exception ex){
+            return "";
+        }
+    }
 
     public String toBase64(String localPath){
 
