@@ -55,12 +55,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -429,8 +431,16 @@ public class App21 {
             }
             final DataCacheManager dataCacheManager = new DataCacheManager(mContext);
             final List<String> datas = dataCacheManager.readDataJSONFromUnZippedFolder(files);
+           List<Map<String, Object>> jsonObjects = new ArrayList<>();
+            for (String d: datas
+                 ) {
+                Gson gson = new Gson();
+                Type type = new com.google.gson.reflect.TypeToken<Map<String, Object>>(){}.getType();
+                jsonObjects.add( gson.fromJson(d, type));
+            }
+
             rs.success = true;
-            rs.data = datas;
+            rs.data = jsonObjects;
             Log.d("dsd",datas.toString());
             App21Result(rs);
         } catch (JSONException e) {
@@ -442,6 +452,7 @@ public class App21 {
         Log.e("Param", rs.params); // params sẽ là 1 mảng các đường dẫn file json
 
     }
+
 
     void DELETE_ALL_LOCAL(final Result result) {
         Result rs = result.copy();
