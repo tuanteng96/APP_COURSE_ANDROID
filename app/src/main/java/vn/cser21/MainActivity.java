@@ -34,6 +34,8 @@ import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -49,6 +51,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.webkit.WebViewAssetLoader;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -440,6 +443,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         setting.setAllowContentAccess(true);
         setting.setAllowFileAccess(true);
+        setting.setDomStorageEnabled(true);
 
         setting.setAllowUniversalAccessFromFileURLs(true);
         //setting.setBlockNetworkImage(true);
@@ -528,7 +532,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (intent.getExtras().get("NOTI_ID") != null) {
+        if(intent == null){
+            return;
+        }
+        Bundle bundle = intent.getExtras();
+        if(bundle == null){
+            return;
+        }
+        if (bundle.get("NOTI_ID") != null) {
             Intent start = intent;
             startActivity(start);
             intent.replaceExtras(new Bundle());
