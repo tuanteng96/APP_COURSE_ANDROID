@@ -108,13 +108,34 @@ public class DataCacheManager {
     }
 
     public void downloadListFileAndUnZip(List<String> files, DataCacheManagerCallback dataCacheManagerCallback) {
-        int index =0;
+        final int[] index = {0};
         for (String f : files){
             try {
              URL url = new URL(f);
              InputStream inputStream = url.openStream();
-             unZip(inputStream,dataCacheManagerCallback);
-             index++;
+             unZip(inputStream, new DataCacheManagerCallback() {
+                 @Override
+                 public void onSuccess(String data) {
+                     index[0]++;
+                     if(index[0] == files.size()){
+                         dataCacheManagerCallback.onCompleted();
+                     }
+                 }
+
+                 @Override
+                 public void onError(String data) {
+                     index[0]++;
+                     if(index[0] == files.size()){
+                         dataCacheManagerCallback.onCompleted();
+                     }
+                 }
+
+                 @Override
+                 public void onCompleted() {
+
+                 }
+             });
+
             } catch (MalformedURLException e) {
                 dataCacheManagerCallback.onError("");
                 throw new RuntimeException(e);
@@ -124,9 +145,7 @@ public class DataCacheManager {
             }
 
         }
-        if(index == files.size()){
-            dataCacheManagerCallback.onCompleted();
-        }
+
 
     }
     public List<String> readDataJSONFromUnZippedFolder(List<String> paths) {
