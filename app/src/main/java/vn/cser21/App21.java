@@ -351,14 +351,23 @@ public class App21 {
         Result rs = result.copy();
 
         try {
-            JSONArray jsonArray = new JSONArray(rs.params);
+            JSONObject jsonObject = new JSONObject(rs.params);
+            boolean isBase64 =  jsonObject.getBoolean("isBase64");
+           JSONArray jsonArray = jsonObject.getJSONArray("items");
+           Log.e("HAHAHHAHA", String.valueOf(isBase64));
+           Log.e("HAHAHHAHA", String.valueOf(jsonArray));
             List<String> files =new ArrayList<>();
             for (int i = 0; i < jsonArray.length(); i++) {
                 String value = jsonArray.getString(i);
                 files.add(value);
             }
             final DataCacheManager dataCacheManager = new DataCacheManager(mContext);
-           final List<String> urls = dataCacheManager.getFileFromUnZipedFolder(files);
+           final List<String> urls ;
+           if(isBase64){
+             urls =  dataCacheManager.getBase64FromUnZipedFolder(files);
+           }else{
+             urls =  dataCacheManager.getFileFromUnZipedFolder(files);
+           }
            rs.success = true;
 //            Gson gson = new Gson();
 //            final String data = gson.toJson(urls);

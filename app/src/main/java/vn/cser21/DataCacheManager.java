@@ -3,6 +3,7 @@ package vn.cser21;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.os.Build;
+import android.util.Base64;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -188,6 +190,35 @@ public class DataCacheManager {
             }
         }
         return fileList;
+    }
+
+    public List<String> getBase64FromUnZipedFolder(List<String> images) {
+        List<String> fileList = new ArrayList<>();
+        File documentsDirectory = getDocumentDirectory();
+        for (String image : images) {
+            if (checkExist(image)) {
+                try {
+                    File file = new File(documentsDirectory, image);
+                    byte[] fileBytes = readFileToByteArray(file);
+                    String base64String = Base64.encodeToString(fileBytes, Base64.DEFAULT);
+                    fileList.add(base64String);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    fileList.add(null);
+                }
+            } else {
+                fileList.add(null);
+            }
+        }
+        return fileList;
+    }
+
+    private byte[] readFileToByteArray(File file) throws IOException {
+        try (FileInputStream fis = new FileInputStream(file)) {
+            byte[] buffer = new byte[(int) file.length()];
+            fis.read(buffer);
+            return buffer;
+        }
     }
 
     public  void  deleteAll(){
