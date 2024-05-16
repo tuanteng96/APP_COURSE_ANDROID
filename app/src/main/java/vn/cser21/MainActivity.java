@@ -25,6 +25,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -65,6 +66,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -1138,17 +1140,29 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
 
     private Bitmap downloadImage(String urlString) {
-        try {
-            URL url = new URL(urlString);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream inputStream = connection.getInputStream();
-            return BitmapFactory.decodeStream(inputStream);
-        } catch (Exception e) {
-            Log.e("Error", "Failed to download image: " + e.getMessage());
-            return null;
+        if(urlString.startsWith("http")){
+            try {
+                URL url = new URL(urlString);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream inputStream = connection.getInputStream();
+                return BitmapFactory.decodeStream(inputStream);
+            } catch (Exception e) {
+                Log.e("Error", "Failed to download image: " + e.getMessage());
+                return null;
+            }
+        }else{
+            try {
+                byte[] decodedString = Base64.decode(urlString.replace("data:image/png;base64,",""), Base64.DEFAULT);
+                InputStream inputStream = new ByteArrayInputStream(decodedString);
+                return BitmapFactory.decodeStream(inputStream);
+            } catch (Exception e) {
+                Log.e("Error", "Failed to decode Base64 image: " + e.getMessage());
+                return null;
+            }
         }
+
     }
 
     private void shareImgs(List<Bitmap> images, String text, DownloadImagesCallback callback) {
@@ -1239,7 +1253,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
              List<Bitmap> images = new ArrayList<>();
             for (String url : imageUrls) {
                 try {
-                    // Tải xuống hình ảnh từ URL
+                    Log.d("URRRLLL", url);
                     Bitmap image = downloadImage(url);
                     if (image != null) {
                         synchronized (images) {
