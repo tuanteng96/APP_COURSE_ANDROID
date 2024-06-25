@@ -354,8 +354,6 @@ public class App21 {
             JSONObject jsonObject = new JSONObject(rs.params);
             boolean isBase64 =  jsonObject.getBoolean("isBase64");
            JSONArray jsonArray = jsonObject.getJSONArray("items");
-           Log.e("HAHAHHAHA", String.valueOf(isBase64));
-           Log.e("HAHAHHAHA", String.valueOf(jsonArray));
             List<String> files =new ArrayList<>();
             for (int i = 0; i < jsonArray.length(); i++) {
                 String value = jsonArray.getString(i);

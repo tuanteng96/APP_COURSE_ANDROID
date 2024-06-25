@@ -41,6 +41,7 @@ dependencies {
     //noinspection GradleCompatible
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
+    implementation "androidx.webkit:webkit:1.2.0"
     implementation 'com.google.firebase:firebase-messaging:23.1.0'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.google.android.gms:play-services-location:19.0.0'
